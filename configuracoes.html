@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPECTRA - Configurações</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --green: #22C55E;
+            --dark-green: #16A34A;
+            --silver: #C0C0C0;
+            --white: #FFFFFF;
+            --black: #000000;
+            --dark-gray: #1A1A1A;
+            --medium-gray: #2D2D2D;
+            --light-gray: #404040;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: var(--silver);
+        }
+        
+        .container-custom {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #0f0f0f 100%);
+            min-height: 100vh;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #2d2d2d 100%);
+            border: 1px solid #404040;
+            border-radius: 16px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--medium-gray);
+            border: 1px solid var(--silver);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: var(--green);
+            border-color: var(--green);
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--silver);
+            top: 1px;
+            left: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(30px);
+            background: var(--black);
+        }
+        
+        .green-text { color: var(--green); }
+        .silver-text { color: var(--silver); }
+        .white-text { color: var(--white); }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #2d2d2d 100%);
+            border: 1px solid #404040;
+            border-radius: 16px;
+            margin: 5% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--silver);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-pic:hover {
+            border-color: var(--green);
+            transform: scale(1.05);
+        }
+        
+        .profile-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .profile-item:hover {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: var(--green);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* CORREÇÃO DAS CORES DOS INPUTS */
+        .input-corrected {
+            background: var(--dark-gray) !important;
+            border: 1px solid var(--silver) !important;
+            color: var(--white) !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            transition: all 0.3s ease !important;
+            width: 100% !important;
+            font-size: 14px !important;
+        }
+        
+        .input-corrected:focus {
+            outline: none !important;
+            border-color: var(--green) !important;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.2) !important;
+            background: var(--medium-gray) !important;
+        }
+        
+        .input-corrected::placeholder {
+            color: var(--light-gray) !important;
+            opacity: 0.7 !important;
+        }
+        
+        .input-corrected.error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+        
+        .input-corrected.success {
+            border-color: var(--green) !important;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1) !important;
+        }
+        
+        .select-corrected {
+            background: var(--dark-gray) !important;
+            border: 1px solid var(--silver) !important;
+            color: var(--white) !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            width: 100% !important;
+            font-size: 14px !important;
+        }
+        
+        .select-corrected:focus {
+            outline: none !important;
+            border-color: var(--green) !important;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.2) !important;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .success-message {
+            color: var(--green);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .btn-primary {
+            background: var(--green);
+            color: var(--white);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: all 0.4s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .loading {
+            position: relative;
+            color: transparent !important;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .photo-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .profile-photo:hover .photo-overlay {
+            opacity: 1;
+        }
+
+/* Sistema de Legendas de Cores para Botões */
+.color-legend-system {
+    position: relative;
+}
+
+.color-label {
+    position: relative;
+    cursor: help;
+}
+
+.color-label-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: rgba(0, 0, 0, 0.95);
+    color: #c0c0c0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #404040;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    pointer-events: none;
+}
+
+.color-label-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.95);
+}
+
+.color-label:hover .color-label-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-12px);
+}
+/* Sistema de Notificações Elegante */
+.spectra-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+    border: 1px solid #404040;
+    border-left: 4px solid #c0c0c0;
+    color: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    z-index: 10000;
+    max-width: 320px;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+
+.spectra-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.spectra-notification.success {
+    border-left-color: #c0c0c0;
+}
+
+.spectra-notification.error {
+    border-left-color: #ef4444;
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+}
+
+.notification-message {
+    flex: 1;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: #e5e5e5;
+}
+
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: #c0c0c0;
+    border-radius: 0 0 12px 12px;
+    animation: progressBar 3s linear forwards;
+}
+
+@keyframes progressBar {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+    </style>
+</head>
+<body>
+<div class="color-legend-system">
+    <div class="color-label">
+        <!-- seu conteúdo colorido aqui -->
+        <div class="color-label-tooltip">
+            Texto da legenda
+        </div>
+    </div>
+</div>
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <div class="bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg border border-green-500">
+            <div class="flex items-center space-x-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <div>
+                    <div class="font-semibold">Perfil Atualizado!</div>
+                    <div class="text-sm opacity-90">Suas alterações foram salvas com sucesso.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Perfil Completo -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content fade-in">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold white-text">Editar Perfil</h3>
+                    <button onclick="closeModal('profileModal')" class="text-silver hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="text-center mb-6">
+                    <div class="profile-photo relative inline-block cursor-pointer" onclick="document.getElementById('imageUpload').click()">
+                        <img id="profileImage" src="" alt="Foto de perfil" class="profile-pic mx-auto mb-4">
+                        <div class="photo-overlay">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <input type="file" id="imageUpload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                    <p class="text-sm text-gray-400 mt-2">Clique na foto para alterar</p>
+                </div>
+                
+                <form id="profileForm" class="space-y-4">
+                    <!-- Nome Completo -->
+                    <div>
+                        <label class="block text-sm font-medium silver-text mb-2">Nome Completo</label>
+                        <input type="text" id="profileName" class="input-corrected" placeholder="Seu nome completo"
+                               onblur="validateField('profileName')" oninput="clearValidation('profileName')">
+                        <div id="profileName-error" class="error-message">Nome deve ter pelo menos 2 caracteres</div>
+                        <div id="profileName-success" class="success-message">✓ Nome válido</div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium silver-text mb-2">Email</label>
+                        <input type="email" id="profileEmail" class="input-corrected" placeholder="seu@email.com"
+                               onblur="validateField('profileEmail')" oninput="clearValidation('profileEmail')">
+                        <div id="profileEmail-error" class="error-message">Email inválido</div>
+                        <div id="profileEmail-success" class="success-message">✓ Email válido</div>
+                    </div>
+                    
+                    <!-- Telefone -->
+                    <div>
+                        <label class="block text-sm font-medium silver-text mb-2">Telefone (opcional)</label>
+                        <input type="tel" id="profilePhone" class="input-corrected" placeholder="(11) 99999-9999"
+                               onblur="validateField('profilePhone')" oninput="formatPhone(this); clearValidation('profilePhone')">
+                        <div id="profilePhone-error" class="error-message">Telefone inválido</div>
+                        <div id="profilePhone-success" class="success-message">✓ Telefone válido</div>
+                    </div>
+                    
+                    <!-- Biografia -->
+                    <div>
+                        <label class="block text-sm font-medium silver-text mb-2">Biografia</label>
+                        <textarea id="profileBio" rows="3" class="input-corrected resize-none" placeholder="Conte um pouco sobre você..."
+                                  onblur="validateField('profileBio')" oninput="updateBioCount(); clearValidation('profileBio')"></textarea>
+                        <div class="flex justify-between mt-2">
+                            <div>
+                                <div id="profileBio-error" class="error-message">Biografia muito longa (máximo 500 caracteres)</div>
+                                <div id="profileBio-success" class="success-message">✓ Biografia válida</div>
+                            </div>
+                            <span id="bioCount" class="text-xs text-gray-500">0/500</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Data de Nascimento -->
+                    <div>
+                        <label class="block text-sm font-medium silver-text mb-2">Data de Nascimento (opcional)</label>
+                        <input type="date" id="profileBirthDate" class="input-corrected"
+                               onblur="validateField('profileBirthDate')" onchange="clearValidation('profileBirthDate')">
+                        <div id="profileBirthDate-error" class="error-message">Data inválida</div>
+                        <div id="profileBirthDate-success" class="success-message">✓ Data válida</div>
+                    </div>
+                    
+                    <div class="flex space-x-4 pt-4">
+                        <button type="button" onclick="closeModal('profileModal')" class="flex-1 bg-gray-700 text-silver py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="flex-1 btn-primary py-3 rounded-lg font-semibold">
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Novo Perfil -->
+    <div id="newProfileModal" class="modal">
+        <div class="modal-content fade-in">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold white-text">Novo Perfil de Filtros</h3>
+                    <button onclick="closeModal('newProfileModal')" class="text-silver hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <form id="newProfileForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium silver-text mb-2">Nome do Perfil</label>
+                        <input type="text" id="newProfileName" class="input-corrected" placeholder="Ex: Trabalho, Casa, Jogos...">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium silver-text mb-2">Descrição</label>
+                        <input type="text" id="newProfileDesc" class="input-corrected" placeholder="Ex: Configuração para uso no trabalho">
+                    </div>
+                    
+                    <div class="flex space-x-4 pt-4">
+                        <button type="button" onclick="closeModal('newProfileModal')" class="flex-1 bg-gray-700 text-silver py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                            Criar Perfil
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-custom">
+        <!-- Header -->
+        <header class="border-b border-gray-800">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <button onclick="window.location.href='index.html'" class="flex items-center text-silver hover:text-white transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                            Voltar
+                        </button>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-r from-green to-dark-green rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                </svg>
+                            </div>
+                            <h1 class="text-xl font-bold white-text">Configurações</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container mx-auto px-6 py-8 max-w-4xl">
+            <!-- Perfil do Usuário -->
+            <div class="card p-8 mb-8 text-center">
+                <div class="profile-photo relative inline-block mb-4 cursor-pointer" onclick="openModal('profileModal')">
+                    <img id="userProfileImage" src="" alt="Foto de perfil" class="profile-pic">
+                    <div class="photo-overlay">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <h3 id="userProfileName" class="text-xl font-bold white-text mb-2">Usuário SPECTRA</h3>
+                <p id="userProfileEmail" class="text-silver">usuario@email.com</p>
+                <p id="userProfileBio" class="text-sm text-gray-400 mt-2 max-w-md mx-auto"></p>
+                <button onclick="openModal('profileModal')" class="mt-4 text-green-400 hover:text-green-300 text-sm font-medium">
+                    Editar perfil
+                </button>
+            </div>
+
+            <!-- Configurações Gerais -->
+            <div class="card p-8 mb-8">
+                <h2 class="text-2xl font-bold white-text mb-6">Configurações Gerais</h2>
+                
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between p-4 bg-medium-gray rounded-xl">
+                        <div>
+                            <h3 class="font-semibold white-text">Modo Escuro</h3>
+                            <p class="text-sm text-silver">Interface com fundo escuro</p>
+                        </div>
+                        <div class="toggle-switch active" data-setting="darkMode"></div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-medium-gray rounded-xl">
+                        <div>
+                            <h3 class="font-semibold white-text">Notificações</h3>
+                            <p class="text-sm text-silver">Alertas e atualizações</p>
+                        </div>
+                        <div class="toggle-switch active" data-setting="notifications"></div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-medium-gray rounded-xl">
+                        <div>
+                            <h3 class="font-semibold white-text">Iniciar Automaticamente</h3>
+                            <p class="text-sm text-silver">Abrir com o sistema</p>
+                        </div>
+                        <div class="toggle-switch" data-setting="autoStart"></div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-medium-gray rounded-xl">
+                        <div>
+                            <h3 class="font-semibold white-text">Salvar Automaticamente</h3>
+                            <p class="text-sm text-silver">Salvar alterações nos filtros</p>
+                        </div>
+                        <div class="toggle-switch active" data-setting="autoSave"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Perfis Salvos -->
+            <div class="card p-8 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold white-text">Perfis de Acessibilidade</h2>
+                    <button onclick="openModal('newProfileModal')" class="btn-primary px-4 py-2 rounded-lg font-semibold">
+                        Novo Perfil
+                    </button>
+                </div>
+                
+                <div id="profilesList" class="space-y-4">
+                    <!-- Perfis serão carregados dinamicamente aqui -->
+                </div>
+                
+                <div id="noProfilesMessage" class="text-center py-8">
+                    <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p class="text-gray-400">Nenhum perfil salvo ainda</p>
+                    <p class="text-sm text-gray-600 mt-2">Crie seu primeiro perfil personalizado</p>
+                </div>
+            </div>
+
+            <!-- Configurações Avançadas -->
+            <div class="card p-8">
+                <h2 class="text-2xl font-bold white-text mb-6">Configurações Avançadas</h2>
+                
+                <div class="space-y-6">
+                    <div class="p-4 bg-medium-gray rounded-xl">
+                        <h3 class="font-semibold white-text mb-3">Qualidade do Filtro</h3>
+                        <select id="filterQuality" class="select-corrected">
+                            <option value="performance">Alta Performance</option>
+                            <option value="balanced" selected>Qualidade Balanceada</option>
+                            <option value="quality">Máxima Qualidade</option>
+                        </select>
+                    </div>
+                    
+                    <div class="p-4 bg-medium-gray rounded-xl">
+                        <h3 class="font-semibold white-text mb-3">Idioma</h3>
+                        <select id="language" class="select-corrected">
+                            <option value="pt-BR" selected>Português (Brasil)</option>
+                            <option value="en">English</option>
+                            <option value="es">Español</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mt-6">
+                    <button onclick="exportSettings()" class="bg-gray-700 text-silver py-3 rounded-xl font-semibold hover:bg-gray-600 transition-colors">
+                        Exportar Configurações
+                    </button>
+                    <button onclick="resetAllSettings()" class="bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition-colors">
+                        Redefinir Tudo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// Sistema de Notificações Elegante
+function showNotification(message, type = 'success', duration = 4000) {
+    const notification = document.createElement('div');
+    notification.className = `spectra-notification ${type}`;
+    
+    const icons = {
+        success: `<svg class="notification-icon" fill="none" stroke="#c0c0c0" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>`,
+        error: `<svg class="notification-icon" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>`
+    };
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            ${icons[type]}
+            <div class="notification-message">${message}</div>
+        </div>
+        <div class="notification-progress"></div>
+    `;
+    
+    document.body.appendChild(notification);
+    setTimeout(() => notification.classList.add('show'), 10);
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 400);
+    }, duration);
+}
+        // Sistema de Gerenciamento de Dados
+        class SettingsManager {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                if (!localStorage.getItem('spectraSettings')) {
+                    this.setDefaultSettings();
+                }
+                this.loadSettings();
+            }
+
+            setDefaultSettings() {
+                const defaultSettings = {
+                    userProfile: {
+                        name: 'Usuário SPECTRA',
+                        email: 'usuario@email.com',
+                        phone: '',
+                        bio: '',
+                        birthDate: '',
+                        image: ''
+                    },
+                    generalSettings: {
+                        darkMode: true,
+                        notifications: true,
+                        autoStart: false,
+                        autoSave: true,
+                        filterQuality: 'balanced',
+                        language: 'pt-BR'
+                    },
+                    profiles: []
+                };
+                this.saveSettings(defaultSettings);
+            }
+
+            getSettings() {
+                return JSON.parse(localStorage.getItem('spectraSettings') || '{}');
+            }
+
+            saveSettings(settings) {
+                localStorage.setItem('spectraSettings', JSON.stringify(settings));
+            }
+
+            updateUserProfile(profileData) {
+                const settings = this.getSettings();
+                settings.userProfile = { ...settings.userProfile, ...profileData };
+                this.saveSettings(settings);
+                this.loadSettings();
+                
+                // ADICIONE ESTAS LINHAS PARA SINCRONIZAR A IMAGEM
+                this.syncUserDataToIndex();
+                
+                // Força atualização imediata no localStorage
+                const updatedSettings = this.getSettings();
+                localStorage.setItem('spectraSettings', JSON.stringify(updatedSettings));
+                
+                console.log('Perfil atualizado:', profileData);
+            }
+
+            updateGeneralSettings(newSettings) {
+                const settings = this.getSettings();
+                settings.generalSettings = { ...settings.generalSettings, ...newSettings };
+                this.saveSettings(settings);
+            }
+
+            addProfile(profile) {
+                const settings = this.getSettings();
+                profile.id = Date.now().toString();
+                profile.createdAt = new Date().toISOString();
+                settings.profiles.push(profile);
+                this.saveSettings(settings);
+                this.loadProfiles();
+            }
+
+            deleteProfile(profileId) {
+                const settings = this.getSettings();
+                settings.profiles = settings.profiles.filter(p => p.id !== profileId);
+                this.saveSettings(settings);
+                this.loadProfiles();
+            }
+
+            loadSettings() {
+                const settings = this.getSettings();
+                
+                // Carregar perfil do usuário
+                const userProfile = settings.userProfile || {};
+                document.getElementById('userProfileName').textContent = userProfile.name || 'Usuário SPECTRA';
+                document.getElementById('userProfileEmail').textContent = userProfile.email || 'usuario@email.com';
+                document.getElementById('userProfileBio').textContent = userProfile.bio || '';
+                
+                const userImage = document.getElementById('userProfileImage');
+                if (userProfile.image) {
+                    userImage.src = userProfile.image;
+                } else {
+                    userImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiIGZpbGw9IiNDMEMwQzAiLz4KPHRleHQgeD0iNTAiIHk9IjU1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMDAwMDAiPlM8L3RleHQ+Cjwvc3ZnPgo=';
+                }
+                
+                // Carregar configurações gerais
+                document.querySelectorAll('.toggle-switch').forEach(toggle => {
+                    const setting = toggle.dataset.setting;
+                    if (settings.generalSettings?.[setting]) {
+                        toggle.classList.add('active');
+                    }
+                });
+
+                document.getElementById('filterQuality').value = settings.generalSettings?.filterQuality || 'balanced';
+                document.getElementById('language').value = settings.generalSettings?.language || 'pt-BR';
+
+                this.loadProfiles();
+            }
+
+            loadProfiles() {
+                const settings = this.getSettings();
+                const profilesList = document.getElementById('profilesList');
+                const noProfilesMessage = document.getElementById('noProfilesMessage');
+
+                if (settings.profiles && settings.profiles.length > 0) {
+                    noProfilesMessage.style.display = 'none';
+                    profilesList.innerHTML = settings.profiles.map(profile => `
+                        <div class="profile-item flex items-center justify-between p-4 bg-medium-gray rounded-xl border border-silver">
+                            <div>
+                                <div class="font-semibold white-text">${profile.name}</div>
+                                <div class="text-sm text-silver">${profile.description || 'Perfil personalizado'}</div>
+                                <div class="text-xs text-gray-500 mt-1">Criado em: ${new Date(profile.createdAt).toLocaleDateString('pt-BR')}</div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-green-400 hover:text-green-300 font-medium" onclick="useProfile('${profile.id}')">
+                                    Usar
+                                </button>
+                                <button class="text-silver hover:text-white" onclick="editProfile('${profile.id}')">
+                                    Editar
+                                </button>
+                                <button class="text-red-400 hover:text-red-300" onclick="deleteProfile('${profile.id}')">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    noProfilesMessage.style.display = 'block';
+                    profilesList.innerHTML = '';
+                }
+            }
+        }
+
+        // Sistema de Validação (do código fornecido)
+        function validateField(fieldId) {
+            const field = document.getElementById(fieldId);
+            const value = field.value.trim();
+            const errorEl = document.getElementById(fieldId + '-error');
+            const successEl = document.getElementById(fieldId + '-success');
+            
+            let isValid = false;
+            
+            switch(fieldId) {
+                case 'profileName':
+                    isValid = value.length >= 2;
+                    break;
+                case 'profileEmail':
+                    isValid = value === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                    break;
+                case 'profilePhone':
+                    isValid = value === '' || /^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(value);
+                    break;
+                case 'profileBio':
+                    isValid = value.length <= 500;
+                    break;
+                case 'profileBirthDate':
+                    if (value === '') {
+                        isValid = true;
+                    } else {
+                        const date = new Date(value);
+                        const today = new Date();
+                        isValid = date < today && date > new Date('1900-01-01');
+                    }
+                    break;
+            }
+            
+            if (isValid) {
+                field.classList.remove('error');
+                field.classList.add('success');
+                errorEl.style.display = 'none';
+                successEl.style.display = 'block';
+            } else {
+                field.classList.remove('success');
+                field.classList.add('error');
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+            }
+            
+            return isValid;
+        }
+        
+        function clearValidation(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorEl = document.getElementById(fieldId + '-error');
+            const successEl = document.getElementById(fieldId + '-success');
+            
+            field.classList.remove('error', 'success');
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+        }
+        
+        function updateBioCount() {
+            const bio = document.getElementById('profileBio');
+            const count = document.getElementById('bioCount');
+            if (bio && count) {
+                count.textContent = `${bio.value.length}/500`;
+            }
+        }
+        
+        function formatPhone(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length >= 11) {
+                value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            } else if (value.length >= 7) {
+                value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+            } else if (value.length >= 3) {
+                value = value.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+            }
+            input.value = value;
+        }
+
+        // Funções de Modal
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            
+            if (modalId === 'profileModal') {
+                const settings = settingsManager.getSettings();
+                const userProfile = settings.userProfile || {};
+                
+                document.getElementById('profileName').value = userProfile.name || '';
+                document.getElementById('profileEmail').value = userProfile.email || '';
+                document.getElementById('profilePhone').value = userProfile.phone || '';
+                document.getElementById('profileBio').value = userProfile.bio || '';
+                document.getElementById('profileBirthDate').value = userProfile.birthDate || '';
+                
+                const profileImage = document.getElementById('profileImage');
+                if (userProfile.image) {
+                    profileImage.src = userProfile.image;
+                } else {
+                    profileImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiIGZpbGw9IiNDMEMwQzAiLz4KPHRleHQgeD0iNTAiIHk9IjU1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMDAwMDAiPlM8L3RleHQ+Cjwvc3ZnPgo=';
+                }
+                
+                updateBioCount();
+                clearAllValidations();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function clearAllValidations() {
+            ['profileName', 'profileEmail', 'profilePhone', 'profileBio', 'profileBirthDate'].forEach(clearValidation);
+        }
+
+        function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification('Arquivo muito grande. Máximo 5MB.', 'error');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Atualiza ambas as imagens
+            document.getElementById('profileImage').src = e.target.result;
+            document.getElementById('userProfileImage').src = e.target.result;
+            
+            // Salva imediatamente no perfil
+            const currentSettings = settingsManager.getSettings();
+            currentSettings.userProfile.image = e.target.result;
+            settingsManager.saveSettings(currentSettings);
+            settingsManager.syncUserDataToIndex();
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+        // Formulários
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validar campos obrigatórios
+            const requiredFields = ['profileName'];
+            let allValid = true;
+            
+            requiredFields.forEach(fieldId => {
+                if (!validateField(fieldId)) {
+                    allValid = false;
+                }
+            });
+            
+            // Validar campos opcionais se preenchidos
+            const optionalFields = ['profileEmail', 'profilePhone', 'profileBio', 'profileBirthDate'];
+            optionalFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field.value.trim() !== '') {
+                    validateField(fieldId);
+                }
+            });
+            
+            if (!allValid) {
+                showNotification('Por favor, corrija os erros no formulário.', 'error');
+                return;
+            }
+            
+            // Mostrar loading
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.classList.add('loading');
+            submitButton.disabled = true;
+            
+            // Coletar dados do formulário
+            const profileData = {
+                name: document.getElementById('profileName').value,
+                email: document.getElementById('profileEmail').value,
+                phone: document.getElementById('profilePhone').value,
+                bio: document.getElementById('profileBio').value,
+                birthDate: document.getElementById('profileBirthDate').value,
+                image: document.getElementById('profileImage').src
+            };
+            
+            // Simular salvamento (em app real seria uma API)
+            setTimeout(() => {
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+                
+                // Salvar no sistema
+                settingsManager.updateUserProfile(profileData);
+                
+                // Fechar modal e mostrar notificação
+                closeModal('profileModal');
+                showNotification('Perfil atualizado com sucesso!', 'success');
+            }, 1500);
+        });
+
+        document.getElementById('newProfileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const profileName = document.getElementById('newProfileName').value;
+            const profileDesc = document.getElementById('newProfileDesc').value;
+            
+            if (!profileName.trim()) {
+                showNotification('Digite um nome para o perfil.', 'error');
+                return;
+            }
+            
+            const profileData = {
+                name: profileName,
+                description: profileDesc,
+                settings: {}
+            };
+            
+            settingsManager.addProfile(profileData);
+            closeModal('newProfileModal');
+            showNotification(`Perfil "${profileName}" criado com sucesso!`, 'success');
+            
+            // Limpar formulário
+            this.reset();
+        });
+
+        // Funções de Perfil
+        function useProfile(profileId) {
+            const settings = settingsManager.getSettings();
+            const profile = settings.profiles.find(p => p.id === profileId);
+            
+            if (profile && profile.settings) {
+                localStorage.setItem('currentFilterSettings', JSON.stringify(profile.settings));
+                showNotification(`Perfil "${profile.name}" aplicado com sucesso!`, 'success');
+                setTimeout(() => {
+                    window.location.href = 'filtros.html';
+                }, 1000);
+            } else {
+                showNotification('Configure os filtros primeiro para este perfil.', 'info');
+                setTimeout(() => {
+                    window.location.href = 'filtros.html';
+                }, 1000);
+            }
+        }
+
+        function editProfile(profileId) {
+            showNotification('Redirecionando para configurar os filtros...', 'info');
+            setTimeout(() => {
+                window.location.href = 'filtros.html';
+            }, 1000);
+        }
+
+        function deleteProfile(profileId) {
+            if (confirm('Tem certeza que deseja excluir este perfil?')) {
+                settingsManager.deleteProfile(profileId);
+                showNotification('Perfil excluído com sucesso!', 'success');
+            }
+        }
+
+        // Sistema de Notificações
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationContent = notification.querySelector('div');
+            
+            // Configurar cor baseada no tipo
+            if (type === 'error') {
+                notificationContent.className = 'bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg border border-red-500';
+            } else if (type === 'info') {
+                notificationContent.className = 'bg-blue-600 text-white px-6 py-4 rounded-lg shadow-lg border border-blue-500';
+            } else {
+                notificationContent.className = 'bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg border border-green-500';
+            }
+            
+            // Atualizar mensagem
+            notificationContent.querySelector('div:last-child div:last-child').textContent = message;
+            
+            // Mostrar notificação
+            notification.classList.add('show');
+            
+            // Auto-esconder após 3 segundos
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Configurações avançadas
+        function exportSettings() {
+            const settings = settingsManager.getSettings();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(settings, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "spectra-settings.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showNotification('Configurações exportadas com sucesso!', 'success');
+        }
+
+        function resetAllSettings() {
+            if (confirm('⚠️ TEM CERTEZA?\n\nIsso irá redefinir TODAS as configurações e excluir TODOS os perfis. Esta ação não pode ser desfeita.')) {
+                localStorage.removeItem('spectraSettings');
+                localStorage.removeItem('currentFilterSettings');
+                settingsManager.setDefaultSettings();
+                showNotification('Todas as configurações foram redefinidas!', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        }
+
+        // Inicializar toggle switches
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar gerenciador de configurações
+            window.settingsManager = new SettingsManager();
+            
+            // Configurar event listeners para toggle switches
+            document.querySelectorAll('.toggle-switch').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const setting = this.dataset.setting;
+                    const isActive = this.classList.contains('active');
+                    
+                    settingsManager.updateGeneralSettings({
+                        [setting]: isActive
+                    });
+                });
+            });
+
+            // Configurar selects
+            document.getElementById('filterQuality').addEventListener('change', function() {
+                settingsManager.updateGeneralSettings({
+                    filterQuality: this.value
+                });
+            });
+
+            document.getElementById('language').addEventListener('change', function() {
+                settingsManager.updateGeneralSettings({
+                    language: this.value
+                });
+                showNotification('Idioma alterado! A página será recarregada.', 'info');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            });
+        });
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Prevenir fechamento do modal ao clicar dentro do conteúdo
+        document.querySelectorAll('.modal-content').forEach(modalContent => {
+            modalContent.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>

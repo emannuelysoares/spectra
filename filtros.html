@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtros - Spectra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, #c0c0c0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-primary {
+            background: #ffffff;
+            color: #1f2937;
+            border: 1px solid #404040;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 1px solid #333333;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .filter-active {
+            border: 2px solid #c0c0c0 !important;
+            background: rgba(192, 192, 192, 0.1) !important;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #333333;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #c0c0c0;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(192, 192, 192, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #c0c0c0;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(192, 192, 192, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .toggle-switch {
+            background: #333333;
+            width: 60px;
+            height: 30px;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #c0c0c0;
+        }
+        
+        .toggle-knob {
+            background: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(30px);
+        }
+        
+        .color-test {
+            width: 100%;
+            height: 200px;
+            border-radius: 12px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .color-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            border: 2px solid #333333;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .color-item:hover {
+            transform: scale(1.05);
+            border-color: #c0c0c0;
+        }
+        
+        .color-label {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.8rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 5px;
+            border-radius: 0 0 6px 6px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: rgba(192, 192, 192, 0.2);
+            color: #c0c0c0;
+            border: 1px solid #c0c0c0;
+        }
+        
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+         
+        }
+        /* Grid de Filtros - Responsivo */
+#filtersContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+@media (min-width: 1024px) {
+    #filtersContainer {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Estilo para filtros premium bloqueados */
+#filtersContainer button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#filtersContainer button .premium-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+    </style>
+</head>
+<body class="bg-gradient-to-br from-black to-gray-900 min-h-screen">
+    <!-- Header -->
+    <header class="border-b border-gray-800">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="index.html" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h1 class="text-2xl font-bold gradient-text">Spectra</h1>
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="status-badge status-inactive" id="globalStatus">Filtro Inativo</div>
+                    <a href="index.html" class="text-gray-400 hover:text-white transition-colors text-sm">
+                        ← Voltar ao Início
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Status e Controles -->
+        <div class="card rounded-2xl p-6 mb-6 fade-in">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Filtros de Correção para Daltonismo</h2>
+                    <p class="text-gray-400">Ajuste as cores para melhor distinção visual</p>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-3 bg-gray-800 px-4 py-2 rounded-xl">
+                        <span class="text-sm text-gray-300">Filtro:</span>
+                        <div class="flex items-center space-x-2">
+                            <div id="globalToggle" class="toggle-switch" onclick="toggleGlobalFilter()">
+                                <div class="toggle-knob"></div>
+                            </div>
+                            <span id="statusText" class="text-sm font-medium text-red-400">Desligado</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="applyFilter()" class="btn-primary px-6 py-2 rounded-xl font-semibold flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Aplicar Filtro</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Coluna Principal -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Seleção de Tipo de Daltonismo -->
+                <div class="card rounded-2xl p-6 fade-in">
+                    <h3 class="text-xl font-semibold text-white mb-4">Tipo de Correção</h3>
+                    <div class="grid grid-cols-2 gap-4" id="filtersContainer">
+                        <!-- Filtros serão inseridos aqui pelo JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Ajustes de Intensidade -->
+                <div class="card rounded-2xl p-6 fade-in">
+                    <h3 class="text-xl font-semibold text-white mb-6">Ajustes de Correção</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- Intensidade do Filtro -->
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-white font-medium">Intensidade da Correção</label>
+                                <span id="intensityValue" class="text-gray-300 font-semibold">70%</span>
+                            </div>
+                            <input 
+                                type="range" 
+                                min="0" 
+                                max="100" 
+                                value="70" 
+                                class="slider" 
+                                id="intensitySlider"
+                                oninput="updateIntensity(this.value)"
+                            >
+                            <div class="text-xs text-gray-500 mt-1">Ajusta o quanto as cores são modificadas</div>
+                        </div>
+
+                        <!-- Saturação -->
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-white font-medium">Brilho</label>
+                                <span id="brightnessValue" class="text-gray-300 font-semibold">100%</span>
+                            </div>
+                            <input 
+                                type="range" 
+                                min="50" 
+                                max="150" 
+                                value="100" 
+                                class="slider" 
+                                id="brightnessSlider"
+                                oninput="updateBrightness(this.value)"
+                            >
+                            <div class="text-xs text-gray-500 mt-1">Controla o brilho geral da tela</div>
+                        </div>
+
+                        <!-- Contraste -->
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-white font-medium">Contraste</label>
+                                <span id="contrastValue" class="text-gray-300 font-semibold">100%</span>
+                            </div>
+                            <input 
+                                type="range" 
+                                min="50" 
+                                max="150" 
+                                value="100" 
+                                class="slider" 
+                                id="contrastSlider"
+                                oninput="updateContrast(this.value)"
+
+                        <!-- Saturação -->
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-white font-medium">Saturação</label>
+                                <span id="saturationValue" class="text-gray-300 font-semibold">100%</span>
+                            </div>
+                            <input 
+                                type="range" 
+                                min="50" 
+                                max="200" 
+                                value="100" 
+                                class="slider" 
+                                id="saturationSlider"
+                                oninput="updateSaturation(this.value)"
+                            >
+                            <div class="text-xs text-gray-500 mt-1">Controla a vivacidade das cores</div>
+                        </div>
+
+<!-- Matiz (Hue) -->
+<div>
+  <div class="flex justify-between items-center mb-3">
+    <label class="text-white font-medium">Matiz (Hue)</label>
+    <span id="hueValue" class="text-gray-300 font-semibold">0°</span>
+  </div>
+  <input 
+    type="range" 
+    min="-180" 
+    max="180" 
+    value="0" 
+    class="slider" 
+    id="hueSlider"
+    oninput="updateHue(this.value)"
+  >
+  <div class="text-xs text-gray-500 mt-1">Gira o espectro de cores</div>
+</div>
+
+                            >
+                            <div class="text-xs text-gray-500 mt-1">Aumenta a diferença entre cores claras e escuras</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de Teste -->
+                <div class="card rounded-2xl p-6 fade-in">
+                    <h3 class="text-xl font-semibold text-white mb-4">Teste de Cores</h3>
+                    <p class="text-gray-400 mb-4">Veja como as cores ficam com a correção aplicada</p>
+                    
+                <!-- Pré-visualização de Tela -->
+        <div class="card rounded-2xl p-6 fade-in">
+            <h3 class="text-xl font-semibold text-white mb-4">Pré-visualização da Tela</h3>
+            <p class="text-gray-400 mb-4">Veja como uma interface real ficaria com o filtro aplicado</p>
+            
+            <div class="bg-gray-900 rounded-xl p-4 border border-gray-700">
+                <!-- Mockup de interface -->
+                <div class="bg-gray-800 rounded-lg p-4 mb-3" id="screenPreview" style="min-height: 300px;">
+                    <!-- Header do mockup -->
+                    <div class="flex items-center justify-between mb-4 p-3 bg-gray-700 rounded">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-500 rounded"></div>
+                            <span class="text-white font-semibold">Aplicativo Exemplo</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conteúdo do mockup -->
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div class="bg-red-500 rounded p-3 text-center text-white">Importante</div>
+                        <div class="bg-green-500 rounded p-3 text-center text-white">Sucesso</div>
+                        <div class="bg-blue-500 rounded p-3 text-center text-white">Informação</div>
+                    </div>
+                    
+                    <div class="bg-gray-700 rounded p-4">
+                        <div class="flex space-x-4 mb-3">
+                            <div class="flex-1 bg-yellow-500 rounded p-2 text-center text-white">Aviso</div>
+                            <div class="flex-1 bg-purple-500 rounded p-2 text-center text-white">Destaque</div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div class="bg-orange-500 rounded p-2 text-white text-center">Laranja</div>
+                            <div class="bg-pink-500 rounded p-2 text-white text-center">Rosa</div>
+                            <div class="bg-teal-500 rounded p-2 text-white text-center">Verde-azulado</div>
+                            <div class="bg-indigo-500 rounded p-2 text-white text-center">Índigo</div>
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- Barra de status -->
+                    <div class="mt-4 flex justify-between items-center p-2 bg-gray-600 rounded text-xs">
+                        <span class="text-gray-300">Status: Online</span>
+                        <div class="flex space-x-1">
+                            <span class="text-red-400">●</span>
+                            <span class="text-green-400">●</span>
+                            <span class="text-blue-400">●</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="applyPreviewFilter()" class="btn-primary px-4 py-2 rounded-lg text-sm">
+                        🔄 Atualizar Pré-visualização
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+                    <!-- Gradiente de teste -->
+                    <div class="color-test" id="testGradient" style="background: linear-gradient(90deg, #ff0000 0%, #00ff00 50%, #0000ff 100%);">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-white text-lg font-semibold bg-black bg-opacity-50 px-4 py-2 rounded">
+                                Gradiente Vermelho → Verde → Azul
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Cores individuais -->
+                    <div class="color-grid">
+                        <div class="color-item" style="background-color: #ff0000;">
+                            <div class="color-label">Vermelho</div>
+                        </div>
+                        <div class="color-item" style="background-color: #00ff00;">
+                            <div class="color-label">Verde</div>
+                        </div>
+                        <div class="color-item" style="background-color: #0000ff;">
+                            <div class="color-label">Azul</div>
+                        </div>
+                        <div class="color-item" style="background-color: #ffff00;">
+                            <div class="color-label">Amarelo</div>
+                        </div>
+                        <div class="color-item" style="background-color: #ff00ff;">
+                            <div class="color-label">Magenta</div>
+                        </div>
+                        <div class="color-item" style="background-color: #00ffff;">
+                            <div class="color-label">Ciano</div>
+                        </div>
+                        <div class="color-item" style="background-color: #ffa500;">
+                            <div class="color-label">Laranja</div>
+                        </div>
+                        <div class="color-item" style="background-color: #800080;">
+                            <div class="color-label">Roxo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Informações do Filtro -->
+                <div class="card rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">Sobre a Correção</h3>
+                    <div class="space-y-3">
+                        <p class="text-gray-400 text-sm" id="filterDescription">
+                            Selecione um tipo de correção para ver informações detalhadas.
+                        </p>
+                        <div class="bg-gray-800 rounded-lg p-3">
+                            <div class="text-xs text-gray-300">
+                                <strong>Como funciona:</strong> Os filtros ajustam as cores para criar maior contraste entre tons que são difíceis de distinguir.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Atalhos Rápidos -->
+                <div class="card rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">Atalhos</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between p-2 bg-gray-800 rounded-lg">
+                            <span class="text-gray-300 text-sm">Ligar/Desligar</span>
+                            <kbd class="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl+Shift+S</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-800 rounded-lg">
+                            <span class="text-gray-300 text-sm">Aplicar Filtro</span>
+                            <kbd class="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl+Enter</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-800 rounded-lg">
+                            <span class="text-gray-300 text-sm">Resetar</span>
+                            <kbd class="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl+R</kbd>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Perfis Rápidos -->
+                <div class="card rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">Configurações Rápidas</h3>
+                    <div class="space-y-3">
+                        <button onclick="loadProfile('leve')" class="w-full text-left p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                            <div class="font-medium text-white">Correção Leve</div>
+                            <div class="text-xs text-gray-400">Ajustes sutis para uso diário</div>
+                        </button>
+                        <button onclick="loadProfile('moderado')" class="w-full text-left p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                            <div class="font-medium text-white">Correção Moderada</div>
+                            <div class="text-xs text-gray-400">Bom equilíbrio para maioria dos casos</div>
+                        </button>
+                        <button onclick="loadProfile('forte')" class="w-full text-left p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                            <div class="font-medium text-white">Correção Forte</div>
+                            <div class="text-xs text-gray-400">Máximo contraste para casos severos</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Configurações atuais
+        let currentSettings = {
+            activeFilter: 'normal',
+            intensity: 70,
+            brightness: 100,
+            contrast: 100,
+            saturation: 100, // novo
+            hue: 0,          // novo
+            isEnabled: false
+        };
+
+        // Filtros de CORREÇÃO (para ajudar daltônicos a distinguir cores)
+        const filters = [
+            { 
+                id: 'normal', 
+                name: 'Sem Correção', 
+                description: 'Cores originais sem modificações',
+                help: 'Modo padrão para comparação',
+                premium: false
+            },
+            { 
+                id: 'protan', 
+                name: 'Correção Protan', 
+                description: 'Ajuda a distinguir vermelhos e verdes',
+                help: 'Ideal para dificuldades com vermelho-verde (protanopia/protanomalia)',
+                premium: false
+            },
+            { 
+                id: 'deutan', 
+                name: 'Correção Deutan', 
+                description: 'Otimiza distinção entre tons verdes',
+                help: 'Para problemas com verde-vermelho (deuteranopia/deuteranomalia)',
+                premium: false
+            },
+            { 
+                id: 'tritan', 
+                name: 'Correção Tritan', 
+                description: 'Melhora visão de azuis e amarelos',
+                help: 'Auxilia na distinção azul-amarelo (tritanopia/tritanomalia)',
+                premium: true
+            },
+            { 
+                id: 'contraste', 
+                name: 'Alto Contraste', 
+                description: 'Máxima diferenciação entre cores',
+                help: 'Aumenta drasticamente o contraste entre todas as cores',
+                premium: true
+            },
+            // NOVOS FILTROS PREMIUM
+            { 
+                id: 'protanopia', 
+                name: 'Protanopia Avançada', 
+                description: 'Correção avançada para ausência de cones vermelhos',
+                help: 'Para casos severos de protanopia - substitui vermelhos por tons discerníveis',
+                premium: true
+            },
+            { 
+                id: 'deuteranopia', 
+                name: 'Deuteranopia Avançada', 
+                description: 'Correção avançada para ausência de cones verdes',
+                help: 'Para casos severos de deuteranopia - realça diferenças entre vermelho e verde',
+                premium: true
+            },
+            { 
+                id: 'tritanopia', 
+                name: 'Tritanopia Avançada', 
+                description: 'Correção avançada para ausência de cones azuis',
+                help: 'Para casos severos de tritanopia - distingue azuis de verdes e rosas de laranjas',
+                premium: true
+            },
+            { 
+                id: 'monocromacia', 
+                name: 'Modo Monocromático', 
+                description: 'Converte cores para escala de cinza com contraste',
+                help: 'Para monocromacia (visão total em preto e branco) - usa brilho para distinguir elementos',
+                premium: true
+            },
+            { 
+                id: 'personalizado', 
+                name: 'Filtro Personalizado', 
+                description: 'Ajuste fino manual de todas as cores',
+                help: 'Controle individual de matiz, saturação e brilho para cada faixa de cores',
+                premium: true
+            }
+        ];
+
+
+        // Carregar configurações salvas
+        function loadSavedSettings() {
+            const saved = localStorage.getItem('spectra-settings');
+            if (saved) {
+                currentSettings = { ...currentSettings, ...JSON.parse(saved) };
+                applySettingsToUI();
+            }
+        }
+
+        // Aplicar configurações na interface
+        function applySettingsToUI() {
+            // Atualizar controles deslizantes
+            document.getElementById('intensitySlider').value = currentSettings.intensity;
+            document.getElementById('brightnessSlider').value = currentSettings.brightness;
+            document.getElementById('contrastSlider').value = currentSettings.contrast;
+            
+            // Atualizar valores exibidos
+            document.getElementById('intensityValue').textContent = currentSettings.intensity + '%';
+            document.getElementById('brightnessValue').textContent = currentSettings.brightness + '%';
+            document.getElementById('contrastValue').textContent = currentSettings.contrast + '%';
+            
+            // Atualizar toggle
+            updateToggleState();
+            
+            // Atualizar filtro ativo
+            updateActiveFilter(currentSettings.activeFilter);
+            updateFilterDescription();
+        }
+
+function createFilterButtons() {
+    const container = document.getElementById('filtersContainer');
+    container.innerHTML = '';
+    
+    const userStatus = getUserStatus();
+    
+    // Cores e legendas para cada filtro
+    const filterColors = {
+        'normal': { bg: 'from-gray-400 to-gray-600', label: 'Cinza - Modo Normal' },
+        'protan': { bg: 'from-red-400 to-red-600', label: 'Vermelho - Correção Protan' },
+        'deutan': { bg: 'from-green-400 to-green-600', label: 'Verde - Correção Deutan' },
+        'tritan': { bg: 'from-blue-400 to-blue-600', label: 'Azul - Correção Tritan' },
+        'contraste': { bg: 'from-purple-400 to-purple-600', label: 'Roxo - Alto Contraste' },
+        'protanopia': { bg: 'from-orange-400 to-orange-600', label: 'Laranja - Protanopia Avançada' },
+        'deuteranopia': { bg: 'from-emerald-400 to-emerald-600', label: 'Verde Esmeralda - Deuteranopia Avançada' },
+        'tritanopia': { bg: 'from-cyan-400 to-cyan-600', label: 'Ciano - Tritanopia Avançada' },
+        'monocromacia': { bg: 'from-gray-300 to-gray-500', label: 'Cinza Claro - Modo Monocromático' },
+        'personalizado': { bg: 'from-indigo-400 to-indigo-600', label: 'Índigo - Filtro Personalizado' }
+    };
+    
+    filters.forEach(filter => {
+        const isLocked = filter.premium && !userStatus.hasPremium;
+        const button = document.createElement('button');
+        const colorConfig = filterColors[filter.id] || { bg: 'from-gray-400 to-gray-600', label: filter.name };
+        
+        button.className = `p-4 rounded-xl text-left transition-all duration-200 relative color-legend-system ${
+            currentSettings.activeFilter === filter.id ? 'filter-active bg-gray-700' : 'bg-gray-800 hover:bg-gray-700'
+        } ${isLocked ? 'opacity-60 cursor-not-allowed' : ''}`;
+        
+        button.innerHTML = `
+            <div class="flex items-center space-x-3 mb-2">
+                <div class="w-8 h-8 bg-gradient-to-r ${colorConfig.bg} rounded-lg flex items-center justify-center color-label">
+                    <div class="color-label-tooltip">
+                        ${colorConfig.label}
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <div class="font-medium text-white mb-1 flex items-center justify-between">
+                        <span>${filter.name}</span>
+                        ${isLocked ? '<span class="text-yellow-400 text-xs">PREMIUM</span>' : ''}
+                    </div>
+                    <div class="text-xs text-gray-400">${filter.description}</div>
+                </div>
+            </div>
+            ${isLocked ? '<div class="absolute inset-0 bg-black bg-opacity-50 rounded-xl flex items-center justify-center"><span class="text-white text-sm font-semibold">Premium</span></div>' : ''}
+        `;
+        
+        if (!isLocked) {
+            button.onclick = () => selectFilter(filter.id);
+        } else {
+            button.onclick = () => showPremiumMessage();
+        }
+        
+        container.appendChild(button);
+    });
+}
+
+        // Verificar status Premium do usuário
+        function getUserStatus() {
+            const spectraSettings = JSON.parse(localStorage.getItem('spectraSettings') || '{}');
+            const isPremium = localStorage.getItem('isPremium') === 'subscribed' || 
+                            localStorage.getItem('isPremium') === 'trial';
+            
+            return {
+                hasPremium: isPremium,
+                isTrial: localStorage.getItem('isPremium') === 'trial',
+                trialDaysLeft: calculateTrialDaysLeft()
+            };
+        }
+
+        // Calcular dias restantes do trial
+        function calculateTrialDaysLeft() {
+            const trialData = localStorage.getItem('trial_' + (localStorage.getItem('deviceId') || ''));
+            if (!trialData) return 0;
+            
+            const trial = JSON.parse(trialData);
+            const now = Date.now();
+            const elapsed = now - trial.startDate;
+            const daysLeft = Math.max(0, Math.ceil((7 * 24 * 60 * 60 * 1000 - elapsed) / (24 * 60 * 60 * 1000)));
+            
+            return daysLeft;
+        }
+
+        function showPremiumMessage() {
+            const userStatus = getUserStatus();
+            let message = '';
+            let type = 'info';
+            
+            if (userStatus.isTrial) {
+                message = `Você tem ${userStatus.trialDaysLeft} dias de teste grátis restantes. Este filtro avançado está disponível durante seu período de teste.`;
+                type = 'info';
+            } else {
+                message = 'Filtro Premium bloqueado. Este filtro avançado requer assinatura SPECTRA Premium.';
+                type = 'warning';
+            }
+            
+            showNotification(message, type, 5000);
+        }
+
+        // Selecionar filtro
+        function selectFilter(filterId) {
+            currentSettings.activeFilter = filterId;
+            updateActiveFilter(filterId);
+            updateFilterDescription();
+            saveSettings();
+            if (currentSettings.isEnabled) {
+                applyFilterEffect();
+            }
+        }
+
+        // Atualizar filtro ativo na UI
+        function updateSaturation(value) {
+  currentSettings.saturation = parseInt(value);
+  document.getElementById('saturationValue').textContent = value + '%';
+  saveSettings();
+  if (currentSettings.isEnabled) applyFilterEffect();
+}
+
+function updateHue(value) {
+  currentSettings.hue = parseInt(value);
+  document.getElementById('hueValue').textContent = value + '°';
+  saveSettings();
+  if (currentSettings.isEnabled) applyFilterEffect();
+}
+
+        function updateActiveFilter(filterId) {
+            const buttons = document.querySelectorAll('#filtersContainer button');
+            buttons.forEach(button => {
+                button.classList.remove('filter-active');
+                if (button.querySelector('.font-medium').textContent === 
+                    filters.find(f => f.id === filterId)?.name) {
+                    button.classList.add('filter-active');
+                }
+            });
+        }
+
+        // Atualizar descrição do filtro
+        function updateFilterDescription() {
+            const filter = filters.find(f => f.id === currentSettings.activeFilter);
+            document.getElementById('filterDescription').textContent = filter?.help || '';
+        }
+
+        // Atualizar intensidade
+        function updateIntensity(value) {
+            currentSettings.intensity = parseInt(value);
+            document.getElementById('intensityValue').textContent = value + '%';
+            saveSettings();
+            if (currentSettings.isEnabled) {
+                applyFilterEffect();
+            }
+        }
+
+        // Atualizar brilho
+        function updateBrightness(value) {
+            currentSettings.brightness = parseInt(value);
+            document.getElementById('brightnessValue').textContent = value + '%';
+            saveSettings();
+            if (currentSettings.isEnabled) {
+                applyFilterEffect();
+            }
+        }
+
+        // Atualizar contraste
+        function updateContrast(value) {
+            currentSettings.contrast = parseInt(value);
+            document.getElementById('contrastValue').textContent = value + '%';
+            saveSettings();
+            if (currentSettings.isEnabled) {
+                applyFilterEffect();
+            }
+        }
+
+        // Alternar filtro global
+        function toggleGlobalFilter() {
+            currentSettings.isEnabled = !currentSettings.isEnabled;
+            updateToggleState();
+            saveSettings();
+            
+            if (currentSettings.isEnabled) {
+                applyFilterEffect();
+                showNotification('Filtro ativado com sucesso!');
+            } else {
+                removeFilterEffect();
+                showNotification('Filtro desativado.');
+            }
+        }
+
+        // Atualizar estado do toggle
+        function updateToggleState() {
+            const toggle = document.getElementById('globalToggle');
+            const statusText = document.getElementById('statusText');
+            const globalStatus = document.getElementById('globalStatus');
+            
+            if (currentSettings.isEnabled) {
+                toggle.classList.add('active');
+                statusText.textContent = 'Ligado';
+                statusText.className = 'text-sm font-medium text-green-400';
+                globalStatus.textContent = 'Filtro Ativo';
+                globalStatus.className = 'status-badge status-active';
+            } else {
+                toggle.classList.remove('active');
+                statusText.textContent = 'Desligado';
+                statusText.className = 'text-sm font-medium text-red-400';
+                globalStatus.textContent = 'Filtro Inativo';
+                globalStatus.className = 'status-badge status-inactive';
+            }
+        }
+
+        // Aplicar filtro
+        function applyFilter() {
+            if (!currentSettings.isEnabled) {
+                currentSettings.isEnabled = true;
+                updateToggleState();
+            }
+            applyFilterEffect();
+            saveSettings();
+            showNotification('Filtro aplicado com sucesso!');
+        }
+
+function applyFilterEffect() {
+    const intensity = currentSettings.intensity / 100;
+    const brightness = currentSettings.brightness / 100;
+    const contrast = currentSettings.contrast / 100;
+    const saturation = currentSettings.saturation / 100;
+    const hue = currentSettings.hue;
+    
+    let filterCSS = `brightness(${brightness}) contrast(${contrast}) saturate(${saturation}) hue-rotate(${hue}deg)`;
+
+    // Aplica a correção específica para cada tipo de daltonismo
+    switch(currentSettings.activeFilter) {
+        case 'protan':
+            // Correção para protanopia: aumenta diferença entre vermelho e verde
+            filterCSS += ` hue-rotate(${-10 * intensity}deg) saturate(${1 + intensity * 0.5})`;
+            break;
+            
+        case 'deutan':
+            // Correção para deuteranopia: ajusta tons verdes
+            filterCSS += ` hue-rotate(${5 * intensity}deg) saturate(${1 + intensity * 0.7})`;
+            break;
+            
+        case 'tritan':
+            // Correção para tritanopia: realça azuis e amarelos
+            filterCSS += ` hue-rotate(${15 * intensity}deg) saturate(${1 + intensity * 0.6})`;
+            break;
+
+        // NOVOS FILTROS PREMIUM
+        case 'protanopia':
+            // Correção avançada para protanopia severa
+            filterCSS += ` hue-rotate(${-20 * intensity}deg) saturate(${0.8 + intensity * 0.4}) contrast(${1.2 + intensity * 0.3})`;
+            break;
+            
+        case 'deuteranopia':
+            // Correção avançada para deuteranopia severa
+            filterCSS += ` hue-rotate(${10 * intensity}deg) saturate(${0.9 + intensity * 0.5}) contrast(${1.3 + intensity * 0.2})`;
+            break;
+            
+        case 'tritanopia':
+            // Correção avançada para tritanopia severa
+            filterCSS += ` hue-rotate(${25 * intensity}deg) saturate(${0.7 + intensity * 0.6}) contrast(${1.4 + intensity * 0.1})`;
+            break;
+            
+        case 'monocromacia':
+            // Modo monocromático para visão em preto e branco
+            filterCSS += ` grayscale(1) contrast(${1.5 + intensity * 0.5}) brightness(${1.1 + intensity * 0.2})`;
+            break;
+            
+        case 'personalizado':
+            // Filtro personalizado - usa os valores dos sliders diretamente
+            // Já está aplicado na variável filterCSS inicial
+            break;
+            
+        case 'contraste':
+            // Alto contraste geral
+            filterCSS += ` contrast(${contrast * 2}) saturate(${1 + intensity})`;
+            break;
+            
+        case 'normal':
+        default:
+            // Sem correção, apenas ajustes básicos
+            break;
+    }
+    
+    // Aplica o filtro aos elementos de teste
+    const testElements = document.querySelectorAll('.color-test, .color-item');
+    testElements.forEach(element => {
+        element.style.filter = filterCSS;
+    });
+    
+    console.log('Filtro aplicado:', filterCSS);
+}
+
+        // Remover efeito do filtro
+        function removeFilterEffect() {
+            const testElements = document.querySelectorAll('.color-test, .color-item');
+            testElements.forEach(element => {
+                element.style.filter = 'none';
+            });
+        }
+
+        // Carregar perfil rápido
+        function loadProfile(profileType) {
+            const profiles = {
+                'leve': { filter: 'protan', intensity: 30, brightness: 100, contrast: 110 },
+                'moderado': { filter: 'deutan', intensity: 60, brightness: 105, contrast: 120 },
+                'forte': { filter: 'contraste', intensity: 90, brightness: 110, contrast: 150 }
+            };
+            
+            const profile = profiles[profileType];
+            if (profile) {
+                currentSettings.activeFilter = profile.filter;
+                currentSettings.intensity = profile.intensity;
+                currentSettings.brightness = profile.brightness;
+                currentSettings.contrast = profile.contrast;
+                
+                applySettingsToUI();
+                if (!currentSettings.isEnabled) {
+                    currentSettings.isEnabled = true;
+                    updateToggleState();
+                }
+                applyFilterEffect();
+                saveSettings();
+                
+                showNotification(`Perfil "${profileType}" carregado!`);
+            }
+        }
+
+        // Mostrar notificação
+        function showNotification(message) {
+            // Cria uma notificação simples
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 fade-in';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Salvar configurações
+        function saveSettings() {
+            localStorage.setItem('spectra-settings', JSON.stringify(currentSettings));
+        }
+
+        // Atalhos de teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey) {
+                switch(e.key) {
+                    case 'S':
+                        e.preventDefault();
+                        toggleGlobalFilter();
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        applyFilter();
+                        break;
+                    case 'R':
+                        e.preventDefault();
+                        resetSettings();
+                        break;
+                }
+            }
+        });
+
+        // Resetar configurações
+        function resetSettings() {
+            if (confirm('Resetar todas as configurações para os valores padrão?')) {
+                currentSettings = {
+                    activeFilter: 'normal',
+                    intensity: 70,
+                    brightness: 100,
+                    contrast: 100,
+                    
+                    isEnabled: false
+                };
+                applySettingsToUI();
+                removeFilterEffect();
+                saveSettings();
+                showNotification('Configurações resetadas!');
+            }
+        }
+
+        // Inicializar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                loadSavedSettings();
+                createFilterButtons();
+                updateFilterDescription();
+                console.log('Spectra Filtros - Sistema carregado!');
+            }
+        });
+        // Sistema de Integração com Configurações
+function saveCurrentSettingsToProfile(profileId) {
+    const currentSettings = {
+        filter: currentFilter,
+        settings: { ...filterSettings },
+        active: isFilterActive,
+        savedAt: new Date().toISOString()
+    };
+    
+    // Recuperar configurações existentes
+    const spectraSettings = JSON.parse(localStorage.getItem('spectraSettings') || '{}');
+    
+    // Encontrar e atualizar o perfil
+    const profileIndex = spectraSettings.profiles.findIndex(p => p.id === profileId);
+    if (profileIndex !== -1) {
+        spectraSettings.profiles[profileIndex].settings = currentSettings;
+        localStorage.setItem('spectraSettings', JSON.stringify(spectraSettings));
+        return true;
+    }
+    return false;
+}
+
+function loadSettingsFromProfile(profileId) {
+    const spectraSettings = JSON.parse(localStorage.getItem('spectraSettings') || '{}');
+    const profile = spectraSettings.profiles.find(p => p.id === profileId);
+    
+    if (profile && profile.settings) {
+        currentFilter = profile.settings.filter;
+        filterSettings = { ...profile.settings.settings };
+        isFilterActive = profile.settings.active;
+        
+        // Atualizar interface
+        updateInterfaceFromSettings();
+        return true;
+    }
+    return false;
+}
+
+function updateInterfaceFromSettings() {
+    // Atualizar sliders
+    document.getElementById('contrast-slider').value = filterSettings.contrast;
+    document.getElementById('intensity-slider').value = filterSettings.intensity;
+    document.getElementById('brightness-slider').value = filterSettings.brightness;
+    
+    // Atualizar valores exibidos
+    document.getElementById('contrast-value').textContent = filterSettings.contrast + '%';
+    document.getElementById('intensity-value').textContent = filterSettings.intensity + '%';
+    document.getElementById('brightness-value').textContent = filterSettings.brightness + '%';
+    
+    // Atualizar filtro selecionado
+    document.querySelectorAll('.filter-option').forEach(opt => {
+        opt.classList.remove('active');
+        if (opt.dataset.filter === currentFilter) {
+            opt.classList.add('active');
+        }
+    });
+    
+    // Atualizar toggle
+    document.getElementById('filter-toggle').classList.toggle('active', isFilterActive);
+    
+    updatePreview();
+    updateFilterStatus();
+}
+
+// Aplicar filtro na pré-visualização
+function applyPreviewFilter() {
+    if (!currentSettings.isEnabled) {
+        showNotification('Ative o filtro primeiro para ver a pré-visualização');
+        return;
+    }
+    
+    const preview = document.getElementById('screenPreview');
+    const intensity = currentSettings.intensity / 100;
+    
+    let filterCSS = `brightness(${currentSettings.brightness / 100}) contrast(${currentSettings.contrast / 100}) saturate(${currentSettings.saturation / 100}) hue-rotate(${currentSettings.hue}deg)`;
+    
+    // Aplica a correção específica para cada tipo de daltonismo
+    switch(currentSettings.activeFilter) {
+        case 'protan':
+            filterCSS += ` hue-rotate(${-10 * intensity}deg) saturate(${1 + intensity * 0.5})`;
+            break;
+        case 'deutan':
+            filterCSS += ` hue-rotate(${5 * intensity}deg) saturate(${1 + intensity * 0.7})`;
+            break;
+        case 'tritan':
+            filterCSS += ` hue-rotate(${15 * intensity}deg) saturate(${1 + intensity * 0.6})`;
+            break;
+        case 'protanopia':
+            filterCSS += ` hue-rotate(${-20 * intensity}deg) saturate(${0.8 + intensity * 0.4}) contrast(${1.2 + intensity * 0.3})`;
+            break;
+        case 'deuteranopia':
+            filterCSS += ` hue-rotate(${10 * intensity}deg) saturate(${0.9 + intensity * 0.5}) contrast(${1.3 + intensity * 0.2})`;
+            break;
+        case 'tritanopia':
+            filterCSS += ` hue-rotate(${25 * intensity}deg) saturate(${0.7 + intensity * 0.6}) contrast(${1.4 + intensity * 0.1})`;
+            break;
+        case 'monocromacia':
+            filterCSS += ` grayscale(1) contrast(${1.5 + intensity * 0.5}) brightness(${1.1 + intensity * 0.2})`;
+            break;
+        case 'contraste':
+            filterCSS += ` contrast(${(currentSettings.contrast / 100) * 2}) saturate(${1 + intensity})`;
+            break;
+        case 'personalizado':
+            // Filtro personalizado usa os valores dos sliders diretamente
+            filterCSS = `brightness(${currentSettings.brightness / 100}) contrast(${currentSettings.contrast / 100}) saturate(${currentSettings.saturation / 100}) hue-rotate(${currentSettings.hue}deg)`;
+            break;
+        case 'normal':
+        default:
+            // Sem correção
+            break;
+    }
+    
+    preview.style.filter = filterCSS;
+    showNotification('Pré-visualização atualizada!');
+}
+
+// Modificar a função saveProfile para integrar com o sistema
+function saveProfile() {
+    const spectraSettings = JSON.parse(localStorage.getItem('spectraSettings') || '{}');
+    
+    if (!spectraSettings.profiles || spectraSettings.profiles.length === 0) {
+        alert('⚠️ Crie um perfil primeiro na página de Configurações!');
+        window.location.href = 'configuracoes.html';
+        return;
+    }
+    
+    // Mostrar lista de perfis para salvar
+    const profileNames = spectraSettings.profiles.map(p => p.name);
+    const profileList = profileNames.map((name, index) => `${index + 1}. ${name}`).join('\n');
+    
+    const profileNumber = prompt(`Em qual perfil deseja salvar?\n\n${profileList}\n\nDigite o número do perfil:`);
+    const profileIndex = parseInt(profileNumber) - 1;
+    
+    if (profileIndex >= 0 && profileIndex < spectraSettings.profiles.length) {
+        const profileId = spectraSettings.profiles[profileIndex].id;
+        if (saveCurrentSettingsToProfile(profileId)) {
+            alert(`✅ Configurações salvas no perfil "${spectraSettings.profiles[profileIndex].name}"!`);
+        } else {
+            alert('❌ Erro ao salvar configurações.');
+        }
+    }
+}
+
+// Carregar configurações salvas ao iniciar
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar se há configurações salvas
+    const currentSettings = JSON.parse(localStorage.getItem('currentFilterSettings') || '{}');
+    if (currentSettings.filter) {
+        currentFilter = currentSettings.filter;
+        filterSettings = { ...currentSettings.settings };
+        isFilterActive = currentSettings.active;
+        updateInterfaceFromSettings();
+    }
+    
+    // Salvar automaticamente se configurado
+    const spectraSettings = JSON.parse(localStorage.getItem('spectraSettings') || '{}');
+    if (spectraSettings.generalSettings?.autoSave) {
+        setInterval(() => {
+            localStorage.setItem('currentFilterSettings', JSON.stringify({
+                filter: currentFilter,
+                settings: { ...filterSettings },
+                active: isFilterActive
+            }));
+        }, 5000); // Salvar a cada 5 segundos
+    }
+});
+    </script>
+</body>
+</html>
